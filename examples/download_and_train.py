@@ -12,7 +12,7 @@ from fnet.cli.init import save_default_train_options
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("--gpu_id", default=0, type=int, help="GPU to use.")
+
 parser.add_argument("--n_imgs", default=40, type=int, help="Number of images to use.")
 parser.add_argument(
     "--n_iterations", default=50000, type=int, help="Number of training iterations."
@@ -30,7 +30,7 @@ args = parser.parse_args()
 # Download the 3D multi-channel tiffs via Quilt/T4
 ###################################################
 
-gpu_id = args.gpu_id
+gpu_id = 0
 n_images_to_download = args.n_imgs  # more images the better
 train_fraction = 0.75
 
@@ -57,6 +57,7 @@ data_manifest = data_manifest.iloc[unique_fov_indices]
 
 # SELECT THE FIRST N_IMAGES_TO_DOWNLOAD
 data_manifest = data_manifest.iloc[0:n_images_to_download]
+print(data_manifest.head())
 
 image_source_paths = data_manifest["SourceReadPath"]
 
@@ -82,10 +83,10 @@ for image_source_path, image_target_path in zip(image_source_paths, image_target
 df = pd.DataFrame(columns=["path_tiff", "channel_signal", "channel_target"])
 
 df["path_tiff"] = image_target_paths
-df["channel_signal"] = data_manifest["ChannelNumberBrightfield"]
+df["channel_signal"] = data_manifest["ChannelNumberBrightfield"].tolist()
 df["channel_target"] = data_manifest[
     "ChannelNumber405"
-]  # this is the DNA channel for all FOVs
+].tolist()  # this is the DNA channel for all FOVs
 
 n_train_images = int(n_images_to_download * train_fraction)
 df_train = df[:n_train_images]
